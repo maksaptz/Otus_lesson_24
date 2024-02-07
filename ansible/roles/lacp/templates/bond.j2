@@ -1,0 +1,10 @@
+auto bond0
+iface bond0 inet static
+  address {{ bond_ip }}
+  mask 255.255.255.252
+  bond-primary eth1
+  bond-slaves eth2
+  bond-mode active-backup
+  bond-miimon 100
+  bond-downdelay 200
+  bond-updelay 300

@@ -1,0 +1,63 @@
+---
+- name: start chronyd
+  service:
+    name: chronyd
+    state: restarted
+    enabled: true
+  when: inventory_hostname in groups["Deb"] 
+
+- name: Install vlan_packet
+  apt:
+    name: 
+         - vlan
+         - tcpdump
+    update_cache: yes
+    state: present
+
+- name: Add the 802.1q module
+  community.general.modprobe:
+    name: 8021q
+    state: present
+
+      #- name: switch router 
+      #  block:
+      #    - name: set up conf router
+      #      template:
+      #        src: vlanRouter
+      #        dest: /etc/network/interfaces.d/vlan
+      #        owner: root
+      #        group: root
+      #        mode: 0644
+      #
+      #    - name: Unconditionally reboot the machine with all defaults
+      #      ansible.builtin.reboot:
+      #  when: ansible_hostname == "office1Router"
+
+- name: set up vlan1
+  block:
+    - name: set up conf
+      template:
+        src: vlanClientsDeb.j2
+        dest: /etc/network/interfaces.d/vlan
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Unconditionally reboot the machine with all defaults
+      ansible.builtin.reboot:
+  when: inventory_hostname in groups["Deb"]
+
+- name: set up vlan2
+  block:
+    - name: set up conf
+      template:
+        src: vlanClientsUb.j2
+        dest: /etc/netplan/50-cloud-init.yaml 
+        owner: root
+        group: root
+        mode: 0644
+    
+    - name: apply set up vlan2
+      shell: netplan apply
+      become: true
+  when: inventory_hostname in groups["Ubun"]

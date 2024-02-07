@@ -1,0 +1,18 @@
+---
+- hosts: 
+        - Deb
+        - Ubun
+  become:
+    true
+  become_method:
+    sudo
+  roles:
+        - vlan
+
+- hosts: bond
+  become:
+    true
+  become_method:
+    sudo
+  roles:
+        - lacp
